@@ -8,7 +8,7 @@ aggregate() {
   awk '
     BEGIN {
       FS = "[ \t]+"; # Separador
-      print "comm\tcant\tprom_cpu\tmax_cpu\tprom_mem\tmax_mem"; # Nombre de columnas
+      print "command\tnproc\tcpu_avg\tcpu_max\tmem_avg\tmem_max"; # Nombre de columnas
     }
   {
     c = $3 # se toma el tercer arumento para agrupar por comm
