@@ -17,7 +17,7 @@ En la terminal se debe escribir:
 ./generator.sh -i 1 -t 5 \
 | ./preprocess.sh --iso8601 \
 | ./filter.sh -c 5 -m 2 -r "^(python|chrome)$" \
-| ./transform.sh \
+| ./transform.sh --anon-uid \
 | ./aggregate.sh \
 | ./report.sh -o reporte1.tsv
 
@@ -37,6 +37,6 @@ En la terminal se debe escribir:
 ./generator.sh -i 1 -t 8 \
 | ./preprocess.sh \
 | ./filter.sh -c 5 -m 1 \
-| ./transform.sh \
+| ./transform.sh --anon-uid \
 | ./aggregate.sh \
 | ./report.sh -o reporte3.tsv
