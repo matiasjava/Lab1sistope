@@ -1,42 +1,63 @@
 #!/bin/bash
 
-# Almacenar los argumentos que se pasaron por terminal con sus respectivas flags
-while getopts "i:t:" opt; do
-  case $opt in
-    i) intervalo=$OPTARG ;;
-    t) tiempo_total=$OPTARG ;;
-    *) 
-      echo "Flag no reconocida: $OPTARG"
-      exit 1
-      ;;
-  esac
-done
-
-# Validar que los argumentos se pasaron correctamente
-if [[ -z "$intervalo" || -z "$tiempo_total" ]]; then
-  echo "Debe especificar intervalo (-i) y tiempo total (-t)"
-  exit 1
-fi
-
-# Calcular la cantidad de repeticiones
-veces=$(( tiempo_total / intervalo ))
-
-
 # Entradas: ninguna, obtiene los datos del sistema
-# Salidas: lista de procesos por stdout con columnas pid, uid, comm, pcpu, pmem y timestamp Unix.
-# Descripcion: obtiene todos los procesos del sistema, los ordena por CPU descendente y agrega un timestamp a cada linea.
+# Salidas: lista de procesos por stdout con columnas timestamp, pid, uid, comm, pcpu, pmem
+# Descripcion: obtiene todos los procesos del sistema, los ordena por CPU descendente y agrega un timestamp al inicio de cada linea.
+
 imprimir_ps() {
+  ts=$(date +%s)
   ps -eo pid=,uid=,comm=,pcpu=,pmem= --sort=-%cpu | while read -r pid uid comm pcpu pmem; do
-    echo "$pid $uid $comm $pcpu $pmem $(date +%s)"
+    echo "$ts $pid $uid $comm $pcpu $pmem"
   done
 }
 
-# Ciclo for para ejecutar el comando ps -eo pid=,uid=,comm=,pcpu=,pmem= --sort=-%cpu
-for ((c=1; c<=veces; c++)); do
-  sleep "$intervalo"
-  imprimir_ps
-done
+# Entradas: parametros -i intervalo -t tiempo_total
+# Salidas: lineas "timestamp pid uid comm pcpu pmem"
+# Descripcion: obtiene los procesos del sistema, ordena por CPU y agrega timestamp.
 
+generator() {
+  # Leer los datos
+  while getopts "i:t:" opt; do
+    case $opt in
+      i) intervalo=$OPTARG ;;
+      t) tiempo_total=$OPTARG ;;
+      *) 
+        echo "Flag no reconocida: $opt" >&2
+        exit 1
+        ;;
+    esac
+  done
+
+  # Validar argumentos
+  if [[ -z "$intervalo" || -z "$tiempo_total" ]]; then
+    echo "Debe especificar intervalo (-i) y tiempo total (-t)" >&2
+    exit 1
+  fi
+
+  if ! [[ "$intervalo" =~ ^[0-9]+$ && "$tiempo_total" =~ ^[0-9]+$ ]]; then
+    echo "Los parametros -i y -t deben ser enteros positivos" >&2
+    exit 1
+  fi
+
+  if [[ "$intervalo" -eq 0 || "$tiempo_total" -eq 0 ]]; then
+    echo "Los parametros -i y -t deben ser mayores que 0" >&2
+    exit 1
+  fi
+
+  # Calcular cantidad de repeticiones 
+  veces=$(( tiempo_total / intervalo + 1 ))
+
+  # Ciclo de capturas
+  for ((c=0; c<veces; c++)); do
+    if [[ $c -ne 0 ]]; then
+      sleep "$intervalo"
+    fi
+    imprimir_ps
+  done
+}
+
+
+generator "$@"
 
 
 

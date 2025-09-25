@@ -11,9 +11,9 @@ aggregate() {
       print "command\tnproc\tcpu_avg\tcpu_max\tmem_avg\tmem_max"; # Nombre de columnas
     }
   {
-    c = $3 # se toma el tercer arumento para agrupar por comm
-    cpu = $4 + 0 # cpu , el +0 es para forzar a numero
-    mem = $5 + 0 # memoria
+    c = $4 # se toma el tercer arumento para agrupar por comm
+    cpu = $5 + 0 # cpu , el +0 es para forzar a numero
+    mem = $6 + 0 # memoria
     n[c] = n[c] + 1 # cantidad de procesos
     sum_cpu[c] = sum_cpu[c] + cpu # suma de cpu
     sum_mem[c] = sum_mem[c] + mem # suma de memoria
